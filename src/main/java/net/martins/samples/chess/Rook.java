@@ -1,12 +1,30 @@
 package net.martins.samples.chess;
 
-public class Rook implements ChessPiece {
+import java.util.Iterator;
+
+public class Rook extends AbstractChessPiece {
 
 	public Rook() {
 	}
 
-	public boolean isHarmlessAt(ChessBoardLayout layout, int column, int row) {
-		return true;
+	public boolean isAttackedAtPosition(ChessLayout layout, int column, int row) {
+		Iterator<ChessPiece> piecesIterator = layout.piecesIterator();
+		while(piecesIterator.hasNext()) {
+			ChessPiece piece = piecesIterator.next();
+			if(piece.getRow() == row || piece.getColumn() == column)
+				return true;
+		}
+		return false;
+	}
+
+	public String getSymbol() {
+		return "R";
+	}
+
+	public boolean canAttackPosition(ChessLayout layout, int column, int row) {
+		if(getRow() == row || getColumn() == column)
+			return true;
+		return false;
 	}
 
 }

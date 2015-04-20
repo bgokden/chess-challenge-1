@@ -1,13 +1,25 @@
 package net.martins.samples.chess;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+/**
+ * Holds the information about the placement of chess pieces in a chess board.<p>
+ * The positions are not identifies by column and row, but by an offset from 
+ * row zero and column zero to width and height.
+ * 
+ * @author cemartins
+ */
 public class ChessLayout {
+	
+	private static final ChessPiece NULL_PIECE = new NullPiece();
 
 	private int width;
 	
-	private int maxOffset;
+	private int boardLength;
 	
 	/**
 	 * Maps an offset to a chess piece in the board.<p>
@@ -18,70 +30,55 @@ public class ChessLayout {
 	public ChessLayout(int width, int height) {
 
 		this.width = width;
-		this.maxOffset = width * height - 1;
+		this.boardLength = width * height;
 		
 		this.pieceOffsets = new HashMap<Integer, ChessPiece>();
+	}
+	
+	public Iterator<ChessPiece> piecesIterator() {
+		return pieceOffsets.values().iterator();
+	}
+	
+	public Iterator<Integer> freeCellsIterator() {
+		List<Integer> freeCells = new ArrayList<Integer>(boardLength);
+		for(int i = 0; i < boardLength; i++)
+			if(pieceOffsets.get(Integer.valueOf(i)) == null)
+				freeCells.add(Integer.valueOf(i));
+		return freeCells.iterator();
 	}
 	
 	/**
 	 * Place a chess piece on the board at position column, row
 	 * @param piece Chess piece to place
-	 * @param column Column position place (0 is first column)
-	 * @param row Row of the position to place (0 is first row)
+	 * @param offset Column position place (0 is first column)
 	 */
-	public void setChessPiece(ChessPiece piece, int column, int row) {
-		int offset = width * row + column;
-		if(offset > maxOffset)
+	public void setChessPiece(ChessPiece piece, int offset) {
+		if(offset >= boardLength)
 			throw new ArrayIndexOutOfBoundsException("Piece fall outside the chess board");
+		piece.placeAt(offset % width, offset / width);
 		pieceOffsets.put(offset, piece);
 	}
-	
 
-	/**
-	 * Checks whether there is a chess piece in the board in a position diagonal to the specified point (defined by column, row).
-	 * @param column Column position to check against (0 is first column)
-	 * @param row Row of the position to check against (0 is first row)
-	 * @return true if there is a piece diagonal to the specified position
-	 */
-	public boolean hasColidingDiagonal(int column, int row, int radius) {
-		for(Integer offset : pieceOffsets.keySet()) {
-			int row1 = offset.intValue() / width;
-			int column1 = offset.intValue() % width;
-			if(Math.abs(row1 - row) == Math.abs(column1 - column))
-				return true;
+	public void printBoard() {
+		int height = boardLength / width;
+		int offset = 0;
+		for(int r = 0; r < height ; r++) {
+			System.out.print("|");
+			for(int c = 0; c < width; c++)
+				System.out.print("-");
+			System.out.println("|");
+			System.out.print("|");
+			for(int c = 0; c < width; c++) {
+				ChessPiece chessPiece = pieceOffsets.get(Integer.valueOf(offset));
+				if(chessPiece == null)
+					chessPiece = NULL_PIECE;
+				System.out.print(chessPiece.getSymbol());
+			}
+			System.out.println("|");
 		}
-		return false;
-	}
-	
-	/**
-	 * Checks whether there is a piece in the board in a position perpendicular (same row or column) to the specified position.
-	 * @param column Column position to check against (0 is first column)
-	 * @param row Row of the position to check against (0 is first row)
-	 * @return true if there is a piece perpendicular to the specified position
-	 */
-	public boolean hasColidingPrependicular(int column, int row) {
-		for(Integer offset : pieceOffsets.keySet()) {
-			int row1 = offset.intValue() / width;
-			int column1 = offset.intValue() % width;
-			if(row1 == row || column1 == column)
-				return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Checks whether there is a piece in the board in a position that can be reached from the specified point by a knight
-	 * @param column
-	 * @param row
-	 * @return
-	 */
-	public boolean hasColidingKnightMoves(int column, int row) {
-		for(Integer offset : pieceOffsets.keySet()) {
-			int drow = Math.abs(offset.intValue() / width - row);
-			int dcolumn = Math.abs(offset.intValue() % width - column);
-			if((drow == 2 && dcolumn == 1) || (drow == 1 && dcolumn == 2))
-				return true;
-		}
-		return false;
+		System.out.print("|");
+		for(int c = 0; c < width; c++)
+			System.out.print("-");
+		System.out.println("|");
 	}
 }

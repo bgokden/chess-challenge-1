@@ -1,9 +1,17 @@
 package net.martins.samples.chess;
 
-public class NullPiece implements ChessPiece {
+public class NullPiece extends AbstractChessPiece {
 
-	public boolean isHarmlessAt(ChessBoardLayout layout, int column, int row) {
+	public boolean isAttackedAtPosition(ChessLayout layout, int column, int row) {
 		return true;
+	}
+
+	public String getSymbol() {
+		return " ";
+	}
+
+	public boolean canAttackPosition(ChessLayout layout, int column, int row) {
+		return false;
 	}
 
 }
