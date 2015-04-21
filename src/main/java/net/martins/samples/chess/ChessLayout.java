@@ -1,6 +1,7 @@
 package net.martins.samples.chess;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,53 +33,78 @@ public class ChessLayout {
 		this.width = width;
 		this.boardLength = width * height;
 		
-		this.pieceOffsets = new HashMap<Integer, ChessPiece>();
+		this.pieceOffsets = new HashMap<Integer, ChessPiece>(boardLength);
 	}
 	
 	public Iterator<ChessPiece> piecesIterator() {
 		return pieceOffsets.values().iterator();
 	}
 	
-	public Iterator<Integer> freeCellsIterator() {
-		List<Integer> freeCells = new ArrayList<Integer>(boardLength);
-		for(int i = 0; i < boardLength; i++)
-			if(pieceOffsets.get(Integer.valueOf(i)) == null)
-				freeCells.add(Integer.valueOf(i));
-		return freeCells.iterator();
-	}
-	
 	/**
 	 * Place a chess piece on the board at position column, row
 	 * @param piece Chess piece to place
-	 * @param offset Column position place (0 is first column)
+	 * @param column Column position place (0 is first column)
+	 * @param row Row position place (0 is first row)
 	 */
-	public void setChessPiece(ChessPiece piece, int offset) {
-		if(offset >= boardLength)
-			throw new ArrayIndexOutOfBoundsException("Piece fall outside the chess board");
-		piece.placeAt(offset % width, offset / width);
-		pieceOffsets.put(offset, piece);
+	public void placeChessPieceAtPosition(ChessPiece piece, int column, int row) {
+		piece.placeAt(column, row);
+		pieceOffsets.put(row * width + column, piece);
+	}
+	
+	public void removeChessPiece(ChessPiece piece) {
+		int offset = piece.getColumn() + width * piece.getRow();
+		pieceOffsets.remove(Integer.valueOf(offset));
+	}
+	
+	public boolean placePieceInNextAvailableCell(ChessPiece piece) {
+		
+		for(int offset = 0; offset < boardLength; offset++)
+			if(pieceOffsets.get(Integer.valueOf(offset)) == null) {
+				int column = offset % width;
+				int row = offset / width;
+				if(canPlacePieceAtPosition(piece, column, row)) {
+					placeChessPieceAtPosition(piece, column, row);
+					return true;
+				}
+			}
+
+		return false;
+	}
+	
+	private boolean canPlacePieceAtPosition(ChessPiece piece, int column, int row) {
+		
+		for(ChessPiece laidPiece : pieceOffsets.values()) {
+			if(laidPiece.canAttackPosition(column, row))
+				return false;
+			piece.placeAt(column, row);
+			if(piece.canAttackPosition(laidPiece.getColumn(), laidPiece.getRow()))
+				return false;
+		}
+		return true;
 	}
 
 	public void printBoard() {
 		int height = boardLength / width;
 		int offset = 0;
 		for(int r = 0; r < height ; r++) {
-			System.out.print("|");
-			for(int c = 0; c < width; c++)
-				System.out.print("-");
-			System.out.println("|");
-			System.out.print("|");
 			for(int c = 0; c < width; c++) {
-				ChessPiece chessPiece = pieceOffsets.get(Integer.valueOf(offset));
+				System.out.print("|");
+				System.out.print("-");
+			}
+			System.out.println("|");
+			for(int c = 0; c < width; c++) {
+				System.out.print("|");
+				ChessPiece chessPiece = pieceOffsets.get(Integer.valueOf(offset++));
 				if(chessPiece == null)
 					chessPiece = NULL_PIECE;
 				System.out.print(chessPiece.getSymbol());
 			}
 			System.out.println("|");
 		}
-		System.out.print("|");
-		for(int c = 0; c < width; c++)
+		for(int c = 0; c < width; c++) {
+			System.out.print("|");
 			System.out.print("-");
+		}
 		System.out.println("|");
 	}
 }

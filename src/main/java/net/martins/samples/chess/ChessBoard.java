@@ -17,11 +17,30 @@ public class ChessBoard {
 		this.pieces = pieces;
 	}
 
-	private List<ChessLayout> searchLayouts() {
+	public List<ChessLayout> searchLayouts() {
 		List<ChessLayout> foundLayouts = new ArrayList<ChessLayout>();
 		
-		List<ChessPiece> searchPieces = Arrays.asList(pieces);
+		List<ChessPiece> piecesToPlace = new ArrayList(Arrays.asList(pieces));
+		ChessLayout chessLayout = new ChessLayout(width, height);
+
+		if(drawLayout(chessLayout, piecesToPlace) != null)
+			chessLayout.printBoard();
 
 		return foundLayouts;
+	}
+	
+	private ChessLayout drawLayout(ChessLayout chessLayout, List<ChessPiece> piecesToPlace) {
+		if(piecesToPlace.size() == 0)
+			return chessLayout;
+		ChessPiece chessPiece = piecesToPlace.get(0);
+		if( ! chessLayout.placePieceInNextAvailableCell(chessPiece) ) {
+			System.out.println("Failed layout");
+			chessLayout.printBoard();
+			return null;
+		}
+		else {
+			piecesToPlace.remove(chessPiece);
+			return drawLayout(chessLayout, piecesToPlace);
+		}
 	}
 }
