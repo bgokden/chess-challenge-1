@@ -1,11 +1,11 @@
 package net.martins.samples.chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.print.attribute.standard.Chromaticity;
 
 /**
  * Holds the information about the placement of chess pieces in a chess board.<p>
@@ -36,8 +36,8 @@ public class ChessLayout {
 		this.pieceOffsets = new HashMap<Integer, ChessPiece>(boardLength);
 	}
 	
-	public Iterator<ChessPiece> piecesIterator() {
-		return pieceOffsets.values().iterator();
+	public int getBoardLength() {
+		return boardLength;
 	}
 	
 	/**
@@ -50,7 +50,13 @@ public class ChessLayout {
 		piece.placeAt(column, row);
 		pieceOffsets.put(row * width + column, piece);
 	}
-	
+
+	public void placeChessPieceAtPosition(ChessPiece piece, int offset) {
+		int column = offset % width;
+		int row = offset / width;
+		placeChessPieceAtPosition(piece, column, row);
+	}
+
 	public void removeChessPiece(ChessPiece piece) {
 		int offset = piece.getColumn() + width * piece.getRow();
 		pieceOffsets.remove(Integer.valueOf(offset));
@@ -82,6 +88,14 @@ public class ChessLayout {
 		}
 		return true;
 	}
+	
+	@Override
+	public int hashCode() {
+		int h = 0;
+		for(Entry<Integer, ChessPiece> entry : pieceOffsets.entrySet())
+			h += entry.getKey().intValue() * (int) entry.getValue().getSymbol().charAt(0);
+		return h;
+	}
 
 	public void printBoard() {
 		int height = boardLength / width;
@@ -89,21 +103,22 @@ public class ChessLayout {
 		for(int r = 0; r < height ; r++) {
 			for(int c = 0; c < width; c++) {
 				System.out.print("|");
-				System.out.print("-");
+				System.out.print("---");
 			}
 			System.out.println("|");
 			for(int c = 0; c < width; c++) {
-				System.out.print("|");
+				System.out.print("| ");
 				ChessPiece chessPiece = pieceOffsets.get(Integer.valueOf(offset++));
 				if(chessPiece == null)
 					chessPiece = NULL_PIECE;
 				System.out.print(chessPiece.getSymbol());
+				System.out.print(" ");
 			}
 			System.out.println("|");
 		}
 		for(int c = 0; c < width; c++) {
 			System.out.print("|");
-			System.out.print("-");
+			System.out.print("---");
 		}
 		System.out.println("|");
 	}
