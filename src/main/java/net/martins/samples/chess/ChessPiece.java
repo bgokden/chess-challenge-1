@@ -16,17 +16,16 @@ public interface ChessPiece {
 	 */
 	public String getSymbol();
 	
-	/**
-	 * Marks the position where this piece is placed in a layout
-	 * @param column
-	 * @param row
-	 */
-	public void placeAt(int column, int row);
+	
+	public void setColumn(int column);
 	
 	/**
 	 * @return The column where this piece is placed in the layout (0 is first column)
 	 */
 	public int getColumn();
+
+	
+	public void setRow(int row);
 	
 	/**
 	 * @return The row where this piece is placed in the layout (0 is first row)

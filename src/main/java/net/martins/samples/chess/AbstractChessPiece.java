@@ -11,19 +11,27 @@ public abstract class AbstractChessPiece implements ChessPiece {
 	public abstract String getSymbol();
 	
 	@Override
+	public String toString() {
+		return getSymbol();
+	}
+	
+	@Override
 	public boolean equals(Object obj) {
 		if(obj == null || ! ChessPiece.class.isAssignableFrom(obj.getClass()))
 			return false;
 		return getSymbol().equals(((ChessPiece)obj).getSymbol());
 	}
-	
-	public void placeAt(int column, int row) {
+
+	public void setColumn(int column) {
 		this.column = column;
-		this.row = row;
 	}
 	
 	public int getColumn() {
 		return column;
+	}
+	
+	public void setRow(int row) {
+		this.row = row;
 	}
 	
 	public int getRow() {

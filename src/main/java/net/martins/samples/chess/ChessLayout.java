@@ -3,9 +3,6 @@ package net.martins.samples.chess;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.print.attribute.standard.Chromaticity;
 
 /**
  * Holds the information about the placement of chess pieces in a chess board.<p>
@@ -16,7 +13,9 @@ import javax.print.attribute.standard.Chromaticity;
  */
 public class ChessLayout {
 	
-	private static final ChessPiece NULL_PIECE = new NullPiece();
+	public static final ChessPiece NULL_PIECE = new NullPiece();
+	
+	public static final int NULL_OFFSET = -1;
 
 	private int width;
 	
@@ -41,16 +40,23 @@ public class ChessLayout {
 	}
 	
 	/**
-	 * Place a chess piece on the board at position column, row
+	 * Place a chess piece on the board at position column, row.<p>
+	 * Does not verify whether the piece can be attacked buy other present pieces or that it can attack any of them.
 	 * @param piece Chess piece to place
 	 * @param column Column position place (0 is first column)
 	 * @param row Row position place (0 is first row)
 	 */
 	public void placeChessPieceAtPosition(ChessPiece piece, int column, int row) {
-		piece.placeAt(column, row);
+		piece.setColumn(column);
+		piece.setRow(row);
 		pieceOffsets.put(row * width + column, piece);
 	}
 
+	/**
+	 * @param piece
+	 * @param offset
+	 * @see {@link ChessLayout#placeChessPieceAtPosition(ChessPiece, int, int)}
+	 */
 	public void placeChessPieceAtPosition(ChessPiece piece, int offset) {
 		int column = offset % width;
 		int row = offset / width;
@@ -59,30 +65,42 @@ public class ChessLayout {
 
 	public void removeChessPiece(ChessPiece piece) {
 		int offset = piece.getColumn() + width * piece.getRow();
-		pieceOffsets.remove(Integer.valueOf(offset));
+		if(pieceOffsets.remove(Integer.valueOf(offset)) == null)
+			throw new IllegalArgumentException("Could not find piece in this layout");
 	}
 	
-	public boolean placePieceInNextAvailableCell(ChessPiece piece) {
+	
+	public int placePieceInNextAvailablePosition(ChessPiece piece) {
+		return placePieceInNextAvailablePosition(piece, 0);
+	}
+
+	/**
+	 * @param piece Chess piece to place
+	 * @param startingOffset Offset from the top left corned of the chess board to start looking for an available position
+	 * @return the offset at wich the piece was placed or NULL_OFFSET if the piece could not be placed.
+	 */
+	public int placePieceInNextAvailablePosition(ChessPiece piece, int startingOffset) {
 		
-		for(int offset = 0; offset < boardLength; offset++)
+		for(int offset = startingOffset; offset < boardLength; offset++)
 			if(pieceOffsets.get(Integer.valueOf(offset)) == null) {
 				int column = offset % width;
 				int row = offset / width;
 				if(canPlacePieceAtPosition(piece, column, row)) {
 					placeChessPieceAtPosition(piece, column, row);
-					return true;
+					return offset;
 				}
 			}
 
-		return false;
+		return NULL_OFFSET;
 	}
-	
+
 	private boolean canPlacePieceAtPosition(ChessPiece piece, int column, int row) {
 		
 		for(ChessPiece laidPiece : pieceOffsets.values()) {
 			if(laidPiece.canAttackPosition(column, row))
 				return false;
-			piece.placeAt(column, row);
+			piece.setColumn(column);
+			piece.setRow(row);
 			if(piece.canAttackPosition(laidPiece.getColumn(), laidPiece.getRow()))
 				return false;
 		}
@@ -96,30 +114,38 @@ public class ChessLayout {
 			h += entry.getKey().intValue() * (int) entry.getValue().getSymbol().charAt(0);
 		return h;
 	}
+	
+	public String getLayoutText() {
+		StringBuilder sb = new StringBuilder();
 
-	public void printBoard() {
 		int height = boardLength / width;
 		int offset = 0;
 		for(int r = 0; r < height ; r++) {
 			for(int c = 0; c < width; c++) {
-				System.out.print("|");
-				System.out.print("---");
+				sb.append("|");
+				sb.append("---");
 			}
-			System.out.println("|");
+			sb.append("|\n");
 			for(int c = 0; c < width; c++) {
-				System.out.print("| ");
+				sb.append("| ");
 				ChessPiece chessPiece = pieceOffsets.get(Integer.valueOf(offset++));
 				if(chessPiece == null)
 					chessPiece = NULL_PIECE;
-				System.out.print(chessPiece.getSymbol());
-				System.out.print(" ");
+				sb.append(chessPiece.getSymbol());
+				sb.append(" ");
 			}
-			System.out.println("|");
+			sb.append("|\n");
 		}
 		for(int c = 0; c < width; c++) {
-			System.out.print("|");
-			System.out.print("---");
+			sb.append("|");
+			sb.append("---");
 		}
-		System.out.println("|");
+		sb.append("|\n");
+
+		return sb.toString();
+	}
+
+	public void printBoard() {
+		System.out.println(getLayoutText());
 	}
 }
