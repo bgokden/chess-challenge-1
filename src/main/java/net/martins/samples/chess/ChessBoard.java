@@ -39,23 +39,15 @@ public class ChessBoard {
 		
 		int boardLength = width * height;
 		
-		for(List<ChessPiece> permutation : permutations) {
+//		for(List<ChessPiece> permutation : permutations) {
+		
+		List<ChessPiece> permutation = permutations.get(0);
 			
-			for(int offset = 0; offset < boardLength; offset ++) {
 				ChessLayout chessLayout = new ChessLayout(width, height);
 
-				// get the first piece of the list and place it at the offset
-				ChessPiece chessPiece = permutation.get(0);
-				chessLayout.placeChessPieceAtPosition(chessPiece, offset);
-
 				// if is able to complete the layout, then store it.
-				if(completeLayout(chessLayout, permutation, 1))
-					foundLayouts.add(chessLayout);
-				else
-					break;
-			}
-			
-		}
+				completeLayout(foundLayouts, chessLayout, permutation, 0);
+//		}
 
 		return foundLayouts;
 	}
@@ -66,9 +58,15 @@ public class ChessBoard {
 	 * @param piecesToPlace
 	 * @return
 	 */
-	private boolean completeLayout(ChessLayout chessLayout, List<ChessPiece> piecesToPlace, int pieceIndex) {
-		if(pieceIndex == piecesToPlace.size())
+	private boolean completeLayout(List<ChessLayout> completedLayouts, ChessLayout chessLayout, List<ChessPiece> piecesToPlace, int pieceIndex) {
+		if(pieceIndex == piecesToPlace.size()) {
+			completedLayouts.add(chessLayout);
+			if(logger.isDebugEnabled()) {
+				logger.debug("Completed layouts: " + completedLayouts.size());
+				logger.debug("\n" + chessLayout.getLayoutText());
+			}
 			return true; // no more chess pieces to place
+		}
 
 		ChessPiece chessPiece = piecesToPlace.get(pieceIndex);
 		int offset = 0;
@@ -76,18 +74,17 @@ public class ChessBoard {
 			
 			int placedOffset = chessLayout.placePieceInNextAvailablePosition(chessPiece, offset);
 			if( placedOffset == ChessLayout.NULL_OFFSET ) {
-				if(logger.isDebugEnabled())
-					logger.debug("Failed to complete this board (" + (piecesToPlace.size() - pieceIndex) + " pieces remaining):\n" + chessLayout.getLayoutText());
-				break; // could not find any available position for piece
+//				if(logger.isDebugEnabled())
+//					logger.debug("Failed to complete this board (" + (piecesToPlace.size() - pieceIndex) + " pieces remaining):\n" + chessLayout.getLayoutText());
+				return false; // could not find any available position for piece
 			}
 			else {
-				if(completeLayout(chessLayout, piecesToPlace, pieceIndex + 1))
-					return true;  // managed to put all remaining pieces
-				else {
-					// backtrack and try next offset
-					chessLayout.removeChessPiece(chessPiece);
-					offset = placedOffset + 1;
-				}
+				if(completeLayout(completedLayouts, chessLayout.clone(), piecesToPlace, pieceIndex + 1) == false)
+					return false; // give up this branch - backtrack
+				
+				// success - try next offset
+				chessLayout.removeChessPiece(chessPiece);
+				offset = placedOffset + 1;
 			}
 		}
 		return false;

@@ -1,7 +1,6 @@
 package net.martins.samples.chess;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -11,7 +10,7 @@ import java.util.Map.Entry;
  * 
  * @author cemartins
  */
-public class ChessLayout {
+public class ChessLayout implements Cloneable {
 	
 	public static final ChessPiece NULL_PIECE = new NullPiece();
 	
@@ -25,7 +24,7 @@ public class ChessLayout {
 	 * Maps an offset to a chess piece in the board.<p>
 	 * Offset 0 corresponds to column=0, row=0; Offset 1 corresponds to column=1, row=0
 	 */
-	private Map<Integer, ChessPiece> pieceOffsets;
+	private HashMap<Integer, ChessPiece> pieceOffsets;
 
 	public ChessLayout(int width, int height) {
 
@@ -33,6 +32,13 @@ public class ChessLayout {
 		this.boardLength = width * height;
 		
 		this.pieceOffsets = new HashMap<Integer, ChessPiece>(boardLength);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private ChessLayout(int width, int boardLength, HashMap<Integer, ChessPiece> pieceOffsets) {
+		this.width = width;
+		this.boardLength = boardLength;
+		this.pieceOffsets = (HashMap<Integer, ChessPiece>) pieceOffsets.clone();
 	}
 	
 	public int getBoardLength() {
@@ -75,8 +81,9 @@ public class ChessLayout {
 	}
 
 	/**
+	 * Place the specified chess piece in the next position where it cannot attack or be attacked by other existing pieces. 
 	 * @param piece Chess piece to place
-	 * @param startingOffset Offset from the top left corned of the chess board to start looking for an available position
+	 * @param startingOffset Offset from the top left corner of the chess board to start looking for an available position
 	 * @return the offset at wich the piece was placed or NULL_OFFSET if the piece could not be placed.
 	 */
 	public int placePieceInNextAvailablePosition(ChessPiece piece, int startingOffset) {
@@ -147,5 +154,12 @@ public class ChessLayout {
 
 	public void printBoard() {
 		System.out.println(getLayoutText());
+	}
+	
+	@Override
+	public ChessLayout clone() {
+		
+		ChessLayout clone = new ChessLayout(width, boardLength, pieceOffsets);
+		return clone;
 	}
 }
