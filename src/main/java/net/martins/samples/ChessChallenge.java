@@ -1,14 +1,12 @@
 package net.martins.samples;
 
-import java.util.Map;
-
 import net.martins.samples.chess.Bishop;
 import net.martins.samples.chess.ChessBoard;
-import net.martins.samples.chess.ChessLayout;
 import net.martins.samples.chess.ChessPiece;
 import net.martins.samples.chess.King;
 import net.martins.samples.chess.Knight;
 import net.martins.samples.chess.Queen;
+import net.martins.samples.chess.Results;
 
 public class ChessChallenge {
 
@@ -18,11 +16,13 @@ public class ChessChallenge {
 		
 		long begin = System.currentTimeMillis();
 
-		Map<Integer, ChessLayout> layouts = chessBoard.searchLayouts();
+		Results results = chessBoard.searchLayouts();
 		
 		long end = System.currentTimeMillis();
 		
-		System.out.println("Found " + layouts.size() + " unique configurations in " + (end - begin) + "ms");
+		System.out.println("Found " + results.getNumUniqueLayouts() + " unique configurations in " + (end - begin) + "ms");
+		System.out.println("      " + results.getNumAttempts() + " attempts");
+		System.out.println("      " + results.getNumDuplicates() + " duplicates");
 	}
 
 }

@@ -1,7 +1,6 @@
 package net.martins.samples.chess;
 
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 /**
  * Holds the information about the placement of chess pieces in a chess board.<p>
@@ -20,6 +19,8 @@ public class ChessLayout implements Cloneable {
 	
 	private int boardLength;
 	
+	private int completionAttempt;
+	
 	/**
 	 * Maps an offset to a chess piece in the board.<p>
 	 * Offset 0 corresponds to column=0, row=0; Offset 1 corresponds to column=1, row=0
@@ -35,9 +36,10 @@ public class ChessLayout implements Cloneable {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private ChessLayout(int width, int boardLength, HashMap<Integer, ChessPiece> pieceOffsets) {
+	private ChessLayout(int width, int boardLength, int completionAttempt, HashMap<Integer, ChessPiece> pieceOffsets) {
 		this.width = width;
 		this.boardLength = boardLength;
+		this.completionAttempt = completionAttempt;
 		this.pieceOffsets = (HashMap<Integer, ChessPiece>) pieceOffsets.clone();
 	}
 	
@@ -45,6 +47,15 @@ public class ChessLayout implements Cloneable {
 		return boardLength;
 	}
 	
+	
+	public int getCompletionAttempt() {
+		return completionAttempt;
+	}
+
+	public void setCompletionAttempt(int completionAttempt) {
+		this.completionAttempt = completionAttempt;
+	}
+
 	/**
 	 * Place a chess piece on the board at position column, row.<p>
 	 * Does not verify whether the piece can be attacked buy other present pieces or that it can attack any of them.
@@ -116,10 +127,18 @@ public class ChessLayout implements Cloneable {
 	
 	@Override
 	public int hashCode() {
-		int h = 0;
-		for(Entry<Integer, ChessPiece> entry : pieceOffsets.entrySet())
-			h += entry.getKey().intValue() * (int) entry.getValue().getSymbol().charAt(0);
-		return h;
+		return getColumnsText().hashCode();
+	}
+	
+	public String getColumnsText() {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<boardLength; i++) {
+			ChessPiece chessPiece = pieceOffsets.get(Integer.valueOf(i));
+			if(chessPiece == null)
+				chessPiece = NULL_PIECE;
+			sb.append(chessPiece.getSymbol());
+		}
+		return sb.toString();
 	}
 	
 	public String getLayoutText() {
@@ -159,7 +178,7 @@ public class ChessLayout implements Cloneable {
 	@Override
 	public ChessLayout clone() {
 		
-		ChessLayout clone = new ChessLayout(width, boardLength, pieceOffsets);
+		ChessLayout clone = new ChessLayout(width, boardLength, completionAttempt, pieceOffsets);
 		return clone;
 	}
 }
