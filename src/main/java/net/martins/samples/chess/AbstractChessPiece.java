@@ -8,18 +8,18 @@ public abstract class AbstractChessPiece implements ChessPiece {
 	public AbstractChessPiece() {
 	}
 	
-	public abstract String getSymbol();
+	public abstract char getSymbol();
 	
 	@Override
 	public String toString() {
-		return getSymbol();
+		return String.valueOf(getSymbol());
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if(obj == null || ! ChessPiece.class.isAssignableFrom(obj.getClass()))
 			return false;
-		return getSymbol().equals(((ChessPiece)obj).getSymbol());
+		return (getSymbol() == ((ChessPiece)obj).getSymbol());
 	}
 
 	public void setColumn(int column) {

@@ -3,8 +3,8 @@ package net.martins.samples.chess;
 public class King extends AbstractChessPiece {
 
 
-	public String getSymbol() {
-		return "K";
+	public char getSymbol() {
+		return 'K';
 	}
 
 	public boolean canAttackPosition(int column, int row) {

@@ -3,8 +3,8 @@ package net.martins.samples.chess;
 
 public class Rook extends AbstractChessPiece {
 
-	public String getSymbol() {
-		return "R";
+	public char getSymbol() {
+		return 'R';
 	}
 
 	public boolean canAttackPosition(int column, int row) {

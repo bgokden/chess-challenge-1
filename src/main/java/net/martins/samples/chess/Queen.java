@@ -2,8 +2,8 @@ package net.martins.samples.chess;
 
 public class Queen extends AbstractChessPiece {
 
-	public String getSymbol() {
-		return "Q";
+	public char getSymbol() {
+		return 'Q';
 	}
 
 	public boolean canAttackPosition(int column, int row) {

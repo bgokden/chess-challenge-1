@@ -14,7 +14,7 @@ public interface ChessPiece {
 	/**
 	 * @return the character representation of this chess piece
 	 */
-	public String getSymbol();
+	public char getSymbol();
 	
 	
 	public void setColumn(int column);

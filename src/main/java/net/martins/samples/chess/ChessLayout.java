@@ -21,6 +21,8 @@ public class ChessLayout implements Cloneable {
 	
 	private int completionAttempt;
 	
+	private int hash;
+	
 	/**
 	 * Maps an offset to a chess piece in the board.<p>
 	 * Offset 0 corresponds to column=0, row=0; Offset 1 corresponds to column=1, row=0
@@ -31,6 +33,8 @@ public class ChessLayout implements Cloneable {
 
 		this.width = width;
 		this.boardLength = width * height;
+		this.completionAttempt = 0;
+		this.hash = 0;
 		
 		this.pieceOffsets = new HashMap<Integer, ChessPiece>(boardLength);
 	}
@@ -40,6 +44,7 @@ public class ChessLayout implements Cloneable {
 		this.width = width;
 		this.boardLength = boardLength;
 		this.completionAttempt = completionAttempt;
+		this.hash = 0;
 		this.pieceOffsets = (HashMap<Integer, ChessPiece>) pieceOffsets.clone();
 	}
 	
@@ -127,7 +132,18 @@ public class ChessLayout implements Cloneable {
 	
 	@Override
 	public int hashCode() {
-		return getColumnsText().hashCode();
+        int h = hash;
+        if (h == 0 && pieceOffsets.size() > 0) {
+
+            for (int i=0; i<boardLength; i++) {
+    			ChessPiece chessPiece = pieceOffsets.get(Integer.valueOf(i));
+    			if(chessPiece == null)
+    				chessPiece = NULL_PIECE;
+                h = 31 * h + (int) chessPiece.getSymbol();
+            }
+            hash = h;
+        }
+        return h;
 	}
 	
 	public String getColumnsText() {

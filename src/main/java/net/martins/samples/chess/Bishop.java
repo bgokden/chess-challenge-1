@@ -3,8 +3,8 @@ package net.martins.samples.chess;
 
 public class Bishop extends AbstractChessPiece {
 
-	public String getSymbol() {
-		return "B";
+	public char getSymbol() {
+		return 'B';
 	}
 
 	public boolean canAttackPosition(int column, int row) {
