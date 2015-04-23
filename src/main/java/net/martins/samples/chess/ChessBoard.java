@@ -2,6 +2,7 @@ package net.martins.samples.chess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class ChessBoard {
@@ -23,10 +24,24 @@ public class ChessBoard {
 	 */
 	public Results searchLayouts() {
 
-		Results results = new Results();
-		
-		ChessLayout chessLayout = new ChessLayout(width, height);
+		// Sort the array of pieces do guarantee that repeated pieces are together
+		Arrays.sort(pieces, new Comparator<ChessPiece>() {
 
+			public int compare(ChessPiece o1, ChessPiece o2) {
+				if(o1.getSymbol() == o2.getSymbol())
+					return 0;
+				else
+					if(o1.getSymbol() > o2.getSymbol())
+						return 1;
+					else
+						return -1;
+			}
+			
+		});
+		
+		Results results = new Results();
+		ChessLayout chessLayout = new ChessLayout(width, height);
+		
 		placePieceOnBoard(results, chessLayout, new ArrayList(Arrays.asList(pieces)), 0);
 
 		return results;
@@ -70,4 +85,25 @@ public class ChessBoard {
 
 	}
 	
+	/**
+	 * Find permutations of a list of chess pieces using a recurrent method.<p>
+	 * Based on the algorithm by Eric Leschinski (http://www.ericleschinski.com/c/java_permutations_recursion/)
+	 * @param permutations
+	 * @param collect
+	 * @param distrib
+	 */
+	private void buildChessPiecePermutations(List<List<ChessPiece>> permutations, List<ChessPiece> collect, List<ChessPiece> distrib) {
+		int n = distrib.size();
+		if(n == 0)
+			permutations.add(new ArrayList<ChessPiece>(collect));
+		else {
+			for(int i = 0; i < n; i++) {
+				List<ChessPiece> nestedCollect = new ArrayList<ChessPiece>(collect);
+				List<ChessPiece> nestedDistrib = new ArrayList<ChessPiece>(distrib);
+				nestedCollect.add(nestedDistrib.remove(i));
+				buildChessPiecePermutations(permutations, nestedCollect, nestedDistrib);
+			}
+		}
+	}
+
 }
