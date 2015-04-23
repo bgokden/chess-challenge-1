@@ -22,7 +22,7 @@ public class ChessBoard {
 	 * Find all unique configurations of the set of chess pieces on this chess board
 	 * @return
 	 */
-	public Results searchLayouts() {
+	public Results __searchLayouts() {
 
 		// Sort the array of pieces do guarantee that repeated pieces are together
 		Arrays.sort(pieces, new Comparator<ChessPiece>() {
@@ -46,6 +46,35 @@ public class ChessBoard {
 
 		return results;
 	}
+	
+	public Results searchLayouts() {
+
+		Results results = new Results();
+		
+		// get a list of all the possible permutations based on the chess pieces available
+		
+		List<List<ChessPiece>> permutations = new ArrayList<List<ChessPiece>>();
+		
+		buildChessPiecePermutations(permutations, new ArrayList<ChessPiece>(), new ArrayList(Arrays.asList(pieces)));
+		
+		// for each permutation try and find chess board layouts starting from every position on the board
+		
+		int boardLength = width * height;
+		
+		for(List<ChessPiece> permutation : permutations) {
+			
+			for(int offset = 0; offset < boardLength; offset ++) {
+				ChessLayout chessLayout = new ChessLayout(width, height);
+
+				placePieceOnBoard(results, chessLayout, permutation, 0);
+			}
+			
+		}
+
+		return results;
+	}
+
+	
 	
 	/**
 	 * Tries to place a piece on all positions of the chess board
