@@ -2,7 +2,9 @@ package net.martins.samples.chess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -25,91 +27,53 @@ public class ChessBoard {
 	 * Find all unique configurations of the set of chess pieces on this chess board
 	 * @return
 	 */
-	public List<ChessLayout> searchLayouts() {
+	public Map<Integer, ChessLayout> searchLayouts() {
 
-		List<ChessLayout> foundLayouts = new ArrayList<ChessLayout>();
+		Map<Integer, ChessLayout> foundLayouts = new HashMap<Integer, ChessLayout>();
 		
-		// get a list of all the possible permutations based on the chess pieces available
-		
-		List<List<ChessPiece>> permutations = new ArrayList<List<ChessPiece>>();
-		
-		buildChessPiecePermutations(permutations, new ArrayList<ChessPiece>(), new ArrayList(Arrays.asList(pieces)));
-		
-		// for each permutation try and find chess board layouts starting from every position on the board
-		
-		int boardLength = width * height;
-		
-//		for(List<ChessPiece> permutation : permutations) {
-		
-		List<ChessPiece> permutation = permutations.get(0);
-			
-				ChessLayout chessLayout = new ChessLayout(width, height);
+		ChessLayout chessLayout = new ChessLayout(width, height);
 
-				// if is able to complete the layout, then store it.
-				completeLayout(foundLayouts, chessLayout, permutation, 0);
-//		}
+		placePieceOnBoard(foundLayouts, chessLayout, new ArrayList(Arrays.asList(pieces)), 0);
 
 		return foundLayouts;
 	}
 	
 	/**
-	 * Tries to place all the pieces in a layout
-	 * @param chessLayout
-	 * @param piecesToPlace
-	 * @return
+	 * Tries to place a piece on all positions of the chess board
+	 * @param completedLayouts where to store all completed board layouts
+	 * @param chessLayout Chess board layout (may contain previously placed chess pieces)
+	 * @param piecesToPlace List of all chess pieces to place on board
+	 * @param pieceIndex index of the list of pieces of the chess piece to place
 	 */
-	private boolean completeLayout(List<ChessLayout> completedLayouts, ChessLayout chessLayout, List<ChessPiece> piecesToPlace, int pieceIndex) {
+	private void placePieceOnBoard(Map<Integer, ChessLayout> completedLayouts, ChessLayout chessLayout, List<ChessPiece> piecesToPlace, int pieceIndex) {
 		if(pieceIndex == piecesToPlace.size()) {
-			completedLayouts.add(chessLayout);
-			if(logger.isDebugEnabled()) {
-				logger.debug("Completed layouts: " + completedLayouts.size());
+			// no more chess pieces to place. store the completed layout
+			Integer hash = Integer.valueOf(chessLayout.hashCode());
+			ChessLayout previous = completedLayouts.put(hash, chessLayout);
+			if(previous != null && logger.isDebugEnabled()) {
+				logger.debug("Layout # " + completedLayouts.size() + " is a duplicate:");
 				logger.debug("\n" + chessLayout.getLayoutText());
 			}
-			return true; // no more chess pieces to place
+		}
+		else {
+			
+			ChessPiece chessPiece = piecesToPlace.get(pieceIndex);
+			int offset = 0;
+			while(offset < chessLayout.getBoardLength()) {
+				
+				int placedOffset = chessLayout.placePieceInNextAvailablePosition(chessPiece, offset);
+				if( placedOffset == ChessLayout.NULL_OFFSET ) 
+					break;
+				else {
+					placePieceOnBoard(completedLayouts, chessLayout.clone(), piecesToPlace, pieceIndex + 1);
+					
+					// backtrack and try next offset
+					chessLayout.removeChessPiece(chessPiece);
+					offset = placedOffset + 1;
+				}
+			}
 		}
 
-		ChessPiece chessPiece = piecesToPlace.get(pieceIndex);
-		int offset = 0;
-		while(offset < chessLayout.getBoardLength()) {
-			
-			int placedOffset = chessLayout.placePieceInNextAvailablePosition(chessPiece, offset);
-			if( placedOffset == ChessLayout.NULL_OFFSET ) {
-//				if(logger.isDebugEnabled())
-//					logger.debug("Failed to complete this board (" + (piecesToPlace.size() - pieceIndex) + " pieces remaining):\n" + chessLayout.getLayoutText());
-				return false; // could not find any available position for piece
-			}
-			else {
-				if(completeLayout(completedLayouts, chessLayout.clone(), piecesToPlace, pieceIndex + 1) == false)
-					return false; // give up this branch - backtrack
-				
-				// success - try next offset
-				chessLayout.removeChessPiece(chessPiece);
-				offset = placedOffset + 1;
-			}
-		}
-		return false;
-	}
-	
-	
-	/**
-	 * Find permutations of a list of chess pieces using a recurrent method.<p>
-	 * Based on the algorithm by Eric Leschinski (http://www.ericleschinski.com/c/java_permutations_recursion/)
-	 * @param permutations
-	 * @param collect
-	 * @param distrib
-	 */
-	private void buildChessPiecePermutations(List<List<ChessPiece>> permutations, List<ChessPiece> collect, List<ChessPiece> distrib) {
-		int n = distrib.size();
-		if(n == 0)
-			permutations.add(new ArrayList<ChessPiece>(collect));
-		else {
-			for(int i = 0; i < n; i++) {
-				List<ChessPiece> nestedCollect = new ArrayList<ChessPiece>(collect);
-				List<ChessPiece> nestedDistrib = new ArrayList<ChessPiece>(distrib);
-				nestedCollect.add(nestedDistrib.remove(i));
-				buildChessPiecePermutations(permutations, nestedCollect, nestedDistrib);
-			}
-		}
 	}
 	
 }

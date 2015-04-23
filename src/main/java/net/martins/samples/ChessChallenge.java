@@ -1,7 +1,5 @@
 package net.martins.samples;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.martins.samples.chess.Bishop;
@@ -20,18 +18,11 @@ public class ChessChallenge {
 		
 		long begin = System.currentTimeMillis();
 
-		List<ChessLayout> layouts = chessBoard.searchLayouts();
+		Map<Integer, ChessLayout> layouts = chessBoard.searchLayouts();
 		
 		long end = System.currentTimeMillis();
 		
 		System.out.println("Found " + layouts.size() + " unique configurations in " + (end - begin) + "ms");
-		
-		Map<Integer, ChessLayout> uniqueLayouts = new HashMap<Integer, ChessLayout>(layouts.size());
-		for(ChessLayout layout : layouts)
-			uniqueLayouts.put(Integer.valueOf(layout.hashCode()), layout);
-
-		System.out.println("Confirmed " + uniqueLayouts.size() + " unique configurations.");
-
 	}
 
 }
