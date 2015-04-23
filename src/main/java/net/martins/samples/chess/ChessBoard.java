@@ -65,7 +65,12 @@ public class ChessBoard {
 				if( placedOffset == ChessLayout.NULL_OFFSET ) 
 					break;
 				else {
-					placePieceOnBoard(completedLayouts, chessLayout.clone(), piecesToPlace, pieceIndex + 1);
+					int nextIndex = pieceIndex + 1;
+					placePieceOnBoard(completedLayouts, chessLayout.clone(), piecesToPlace, nextIndex);
+					
+					// if piece at index + 1 equals piece at index, then no need to try other positions with piece at index
+					if(nextIndex < piecesToPlace.size() && chessPiece.equals(piecesToPlace.get(nextIndex)))
+						break;
 					
 					// backtrack and try next offset
 					chessLayout.removeChessPiece(chessPiece);
