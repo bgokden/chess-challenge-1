@@ -9,3 +9,7 @@ Write a program which takes as input:
 - The number of pieces of each type (King, Queen, Bishop, Rook and Knight) to try and place on the board.
 
 As output, the program should list all the unique configurations to the console for which all of the pieces can be placed on the board without threatening each other.
+
+To run the program execute the command:
+
+ `mvn exec:java`

@@ -1,5 +1,6 @@
 package net.martins.samples.chess;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -42,6 +43,12 @@ public class Results {
 //				Scanner in = new Scanner(System.in);
 //				in.nextLine();
 			}
+		}
+	}
+	
+	public void printLayouts(PrintStream out) {
+		for(ChessLayout chessLayout : completedLayouts.values()) {
+			out.println(chessLayout.getLayoutText());
 		}
 	}
 

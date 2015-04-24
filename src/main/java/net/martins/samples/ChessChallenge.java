@@ -24,6 +24,8 @@ public class ChessChallenge {
 		System.out.println("Found " + results.getNumUniqueLayouts() + " unique configurations in " + (end - begin) + "ms");
 		System.out.println("      " + results.getNumAttempts() + " attempts");
 		System.out.println("      " + results.getNumDuplicates() + " duplicates");
+		
+		results.printLayouts(System.out);
 	}
 
 }
