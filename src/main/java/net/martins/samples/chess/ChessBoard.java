@@ -41,10 +41,9 @@ public class ChessBoard {
 		
 		for(List<ChessPiece> permutation : permutations) {
 			
-			ChessLayout chessLayout = new ChessLayout(width, height);
-
-			placePieceOnBoard(results, chessLayout, permutation, 0, 0);
-			
+				ChessLayout chessLayout = new ChessLayout(width, height);
+				
+				placePieceOnBoard(results, chessLayout, permutation, 0, 0);
 		}
 
 		return results;
@@ -53,7 +52,7 @@ public class ChessBoard {
 	
 	
 	/**
-	 * Tries to place a piece on all positions of the chess board
+	 * Tries to place a piece on all possible positions of the chess board
 	 * @param results where to store all completed board layouts
 	 * @param chessLayout Chess board layout (may contain previously placed chess pieces)
 	 * @param piecesToPlace List of all chess pieces to place on board
