@@ -10,7 +10,7 @@
   </appender> 
  
     <logger name="net.martins.samples.chess">
-        <level value="error"/>
+        <level value="debug"/>
     </logger>
  
     <root>

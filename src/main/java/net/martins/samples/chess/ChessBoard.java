@@ -5,7 +5,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 public class ChessBoard {
+	
+	private static final Logger logger = Logger.getLogger(ChessBoard.class);
 	
 	private int width;
 	private int height;
@@ -57,17 +61,14 @@ public class ChessBoard {
 		
 		buildChessPiecePermutations(permutations, new ArrayList<ChessPiece>(), new ArrayList(Arrays.asList(pieces)));
 		
-		// for each permutation try and find chess board layouts starting from every position on the board
-		
-		int boardLength = width * height;
+		if(logger.isDebugEnabled())
+			logger.debug("Found " + permutations.size() + " permutations.");
 		
 		for(List<ChessPiece> permutation : permutations) {
 			
-			for(int offset = 0; offset < boardLength; offset ++) {
-				ChessLayout chessLayout = new ChessLayout(width, height);
+			ChessLayout chessLayout = new ChessLayout(width, height);
 
-				placePieceOnBoard(results, chessLayout, permutation, 0);
-			}
+			placePieceOnBoard(results, chessLayout, permutation, 0);
 			
 		}
 
@@ -83,10 +84,11 @@ public class ChessBoard {
 	 * @param piecesToPlace List of all chess pieces to place on board
 	 * @param pieceIndex index of the list of pieces of the chess piece to place
 	 */
-	private void placePieceOnBoard(Results results, ChessLayout chessLayout, List<ChessPiece> piecesToPlace, int pieceIndex) {
+	private boolean placePieceOnBoard(Results results, ChessLayout chessLayout, List<ChessPiece> piecesToPlace, int pieceIndex) {
 		if(pieceIndex == piecesToPlace.size()) {
 			// no more chess pieces to place. store the completed layout
 			results.addLayout(chessLayout);
+			return true;
 		}
 		else {
 			
@@ -110,6 +112,7 @@ public class ChessBoard {
 					offset = placedOffset + 1;
 				}
 			}
+			return false;
 		}
 
 	}
