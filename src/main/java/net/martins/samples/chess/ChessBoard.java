@@ -3,7 +3,9 @@ package net.martins.samples.chess;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -26,39 +28,12 @@ public class ChessBoard {
 	 * Find all unique configurations of the set of chess pieces on this chess board
 	 * @return
 	 */
-	public Results __searchLayouts() {
-
-		// Sort the array of pieces do guarantee that repeated pieces are together
-		Arrays.sort(pieces, new Comparator<ChessPiece>() {
-
-			public int compare(ChessPiece o1, ChessPiece o2) {
-				if(o1.getSymbol() == o2.getSymbol())
-					return 0;
-				else
-					if(o1.getSymbol() > o2.getSymbol())
-						return 1;
-					else
-						return -1;
-			}
-			
-		});
-		
-		Results results = new Results();
-		ChessLayout chessLayout = new ChessLayout(width, height);
-		
-		placePieceOnBoard(results, chessLayout, new ArrayList(Arrays.asList(pieces)), 0);
-
-		return results;
-	}
-	
 	public Results searchLayouts() {
 
 		Results results = new Results();
 		
-		// get a list of all the possible permutations based on the chess pieces available
-		
-		List<List<ChessPiece>> permutations = new ArrayList<List<ChessPiece>>();
-		
+		// get a list of all the unique permutations based on the chess pieces available (duplicates are discarded)
+		Set<List<ChessPiece>> permutations = new HashSet<List<ChessPiece>>();
 		buildChessPiecePermutations(permutations, new ArrayList<ChessPiece>(), new ArrayList(Arrays.asList(pieces)));
 		
 		if(logger.isDebugEnabled())
@@ -68,7 +43,7 @@ public class ChessBoard {
 			
 			ChessLayout chessLayout = new ChessLayout(width, height);
 
-			placePieceOnBoard(results, chessLayout, permutation, 0);
+			placePieceOnBoard(results, chessLayout, permutation, 0, 0);
 			
 		}
 
@@ -84,7 +59,7 @@ public class ChessBoard {
 	 * @param piecesToPlace List of all chess pieces to place on board
 	 * @param pieceIndex index of the list of pieces of the chess piece to place
 	 */
-	private boolean placePieceOnBoard(Results results, ChessLayout chessLayout, List<ChessPiece> piecesToPlace, int pieceIndex) {
+	private boolean placePieceOnBoard(Results results, ChessLayout chessLayout, List<ChessPiece> piecesToPlace, int pieceIndex, int startOffset) {
 		if(pieceIndex == piecesToPlace.size()) {
 			// no more chess pieces to place. store the completed layout
 			results.addLayout(chessLayout);
@@ -93,15 +68,21 @@ public class ChessBoard {
 		else {
 			
 			ChessPiece chessPiece = piecesToPlace.get(pieceIndex);
-			int offset = 0;
+			int offset = startOffset;
 			while(offset < chessLayout.getBoardLength()) {
 				
 				int placedOffset = chessLayout.placePieceInNextAvailablePosition(chessPiece, offset);
 				if( placedOffset == ChessLayout.NULL_OFFSET ) 
 					break;
 				else {
+					
+					if(logger.isDebugEnabled())
+						logger.debug("piece " + pieceIndex + " (" + chessPiece + ") moved");
+					
 					int nextIndex = pieceIndex + 1;
-					placePieceOnBoard(results, chessLayout.clone(), piecesToPlace, nextIndex);
+					
+					// try possible combinations using the remaining pieces, in the offsets ahead of this one.
+					placePieceOnBoard(results, chessLayout.clone(), piecesToPlace, nextIndex, placedOffset + 1);
 					
 					// if piece at index + 1 equals piece at index, then no need to try other positions with piece at index
 					if(nextIndex < piecesToPlace.size() && chessPiece.equals(piecesToPlace.get(nextIndex)))
@@ -124,7 +105,7 @@ public class ChessBoard {
 	 * @param collect
 	 * @param distrib
 	 */
-	private void buildChessPiecePermutations(List<List<ChessPiece>> permutations, List<ChessPiece> collect, List<ChessPiece> distrib) {
+	private void buildChessPiecePermutations(Set<List<ChessPiece>> permutations, List<ChessPiece> collect, List<ChessPiece> distrib) {
 		int n = distrib.size();
 		if(n == 0)
 			permutations.add(new ArrayList<ChessPiece>(collect));

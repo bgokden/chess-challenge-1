@@ -21,6 +21,11 @@ public abstract class AbstractChessPiece implements ChessPiece {
 			return false;
 		return (getSymbol() == ((ChessPiece)obj).getSymbol());
 	}
+	
+	@Override
+	public int hashCode() {
+		return getSymbol();
+	}
 
 	public void setColumn(int column) {
 		this.column = column;
