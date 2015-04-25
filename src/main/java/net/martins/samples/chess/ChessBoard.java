@@ -2,7 +2,6 @@ package net.martins.samples.chess;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -78,14 +77,8 @@ public class ChessBoard {
 					if(logger.isDebugEnabled())
 						logger.debug("piece " + pieceIndex + " (" + chessPiece + ") moved");
 					
-					int nextIndex = pieceIndex + 1;
-					
 					// try possible combinations using the remaining pieces, in the offsets ahead of this one.
-					placePieceOnBoard(results, chessLayout.clone(), piecesToPlace, nextIndex, placedOffset + 1);
-					
-					// if piece at index + 1 equals piece at index, then no need to try other positions with piece at index
-					if(nextIndex < piecesToPlace.size() && chessPiece.equals(piecesToPlace.get(nextIndex)))
-						break;
+					placePieceOnBoard(results, chessLayout.clone(), piecesToPlace, pieceIndex + 1, placedOffset + 1);
 					
 					// backtrack and try next offset
 					chessLayout.removeChessPiece(chessPiece);
